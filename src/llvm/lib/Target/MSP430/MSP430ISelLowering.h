@@ -65,6 +65,7 @@ namespace llvm {
       SELECT_CC,
 
       /// DADD - Decimal addition with carry
+      /// TODO Nothing generates a node of this type yet.
       DADD,
     };
   }
