@@ -351,7 +351,7 @@ X86TargetLowering::X86TargetLowering(const X86TargetMachine &TM,
   setOperationAction(ISD::FREM             , MVT::f32  , Expand);
   setOperationAction(ISD::FREM             , MVT::f64  , Expand);
   setOperationAction(ISD::FREM             , MVT::f80  , Expand);
-  setOperationAction(ISD::FLT_ROUNDS_      , MVT::i32  , Custom);
+  setOperationAction(ISD::FLT_ROUNDS_      , MVT::i8   , Custom);
 
   // Promote the i8 variants and force them on up to i32 which has a shorter
   // encoding.

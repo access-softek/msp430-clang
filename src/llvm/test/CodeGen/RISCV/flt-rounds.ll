@@ -4,7 +4,7 @@
 ; RUN: llc -mtriple=riscv64 -verify-machineinstrs < %s \
 ; RUN:   | FileCheck -check-prefix=RV64I %s
 
-declare i32 @llvm.flt.rounds()
+declare i8 @llvm.flt.rounds()
 
 define i32 @test_flt_rounds() nounwind {
 ; RV32I-LABEL: test_flt_rounds:
@@ -16,6 +16,7 @@ define i32 @test_flt_rounds() nounwind {
 ; RV64I:       # %bb.0:
 ; RV64I-NEXT:    addi a0, zero, 1
 ; RV64I-NEXT:    ret
-  %1 = call i32 @llvm.flt.rounds()
+  %v = call i8 @llvm.flt.rounds()
+  %1 = sext i8 %v to i32
   ret i32 %1
 }

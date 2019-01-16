@@ -7,7 +7,8 @@
 define void @strtod() {
 entry:
   ; CHECK: vmrs r{{[0-9]+}}, fpscr
-  %0 = call i32 @llvm.flt.rounds()
+  %v = call i8 @llvm.flt.rounds()
+  %0 = sext i8 %v to i32
   %tobool = icmp ne i32 %0, 0
   br i1 %tobool, label %if.then, label %if.end
 
@@ -41,4 +42,4 @@ declare i32 @llvm.arm.get.fpscr()
 declare void @llvm.arm.set.fpscr(i32)
 
 ; Function Attrs: nounwind
-declare i32 @llvm.flt.rounds()
+declare i8 @llvm.flt.rounds()

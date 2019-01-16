@@ -6010,7 +6010,7 @@ SelectionDAGBuilder::visitIntrinsicCall(const CallInst &I, unsigned Intrinsic) {
   case Intrinsic::gcwrite:
     llvm_unreachable("GC failed to lower gcread/gcwrite intrinsics!");
   case Intrinsic::flt_rounds:
-    setValue(&I, DAG.getNode(ISD::FLT_ROUNDS_, sdl, MVT::i32));
+    setValue(&I, DAG.getNode(ISD::FLT_ROUNDS_, sdl, MVT::i8));
     return nullptr;
 
   case Intrinsic::expect:

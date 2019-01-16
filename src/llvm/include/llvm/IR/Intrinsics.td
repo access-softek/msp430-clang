@@ -954,7 +954,7 @@ def int_coro_subfn_addr : Intrinsic<[llvm_ptr_ty], [llvm_ptr_ty, llvm_i8_ty],
 
 ///===-------------------------- Other Intrinsics --------------------------===//
 //
-def int_flt_rounds : Intrinsic<[llvm_i32_ty]>,
+def int_flt_rounds : Intrinsic<[llvm_i8_ty]>,
                      GCCBuiltin<"__builtin_flt_rounds">;
 def int_trap : Intrinsic<[], [], [IntrNoReturn, IntrCold]>,
                GCCBuiltin<"__builtin_trap">;

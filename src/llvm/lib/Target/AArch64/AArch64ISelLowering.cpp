@@ -471,7 +471,7 @@ AArch64TargetLowering::AArch64TargetLowering(const TargetMachine &TM,
 
   setOperationAction(ISD::PREFETCH, MVT::Other, Custom);
 
-  setOperationAction(ISD::FLT_ROUNDS_, MVT::i32, Custom);
+  setOperationAction(ISD::FLT_ROUNDS_, MVT::i8, Custom);
 
   setOperationAction(ISD::ATOMIC_CMP_SWAP, MVT::i128, Custom);
   setOperationAction(ISD::ATOMIC_LOAD_SUB, MVT::i32, Custom);
@@ -2625,6 +2625,7 @@ SDValue AArch64TargetLowering::LowerFLT_ROUNDS_(SDValue Op,
   // The ARM rounding mode value to FLT_ROUNDS mapping is 0->1, 1->2, 2->3, 3->0
   // The formula we use to implement this is (((FPSCR + 1 << 22) >> 22) & 3)
   // so that the shift + and get folded into a bitfield extract.
+  EVT VT = Op.getValueType();
   SDLoc dl(Op);
 
   SDValue FPCR_64 = DAG.getNode(ISD::INTRINSIC_WO_CHAIN, dl, MVT::i64,
@@ -2635,8 +2636,11 @@ SDValue AArch64TargetLowering::LowerFLT_ROUNDS_(SDValue Op,
                                   DAG.getConstant(1U << 22, dl, MVT::i32));
   SDValue RMODE = DAG.getNode(ISD::SRL, dl, MVT::i32, FltRounds,
                               DAG.getConstant(22, dl, MVT::i32));
-  return DAG.getNode(ISD::AND, dl, MVT::i32, RMODE,
-                     DAG.getConstant(3, dl, MVT::i32));
+  SDValue RetVal = DAG.getNode(ISD::AND, dl, MVT::i32, RMODE,
+                               DAG.getConstant(3, dl, MVT::i32));
+
+  return DAG.getNode((VT.getSizeInBits() < 16 ?
+                      ISD::TRUNCATE : ISD::ZERO_EXTEND), dl, VT, RetVal);
 }
 
 static SDValue LowerMUL(SDValue Op, SelectionDAG &DAG) {
@@ -11526,6 +11530,9 @@ void AArch64TargetLowering::ReplaceNodeResults(
     return;
   case ISD::ATOMIC_CMP_SWAP:
     ReplaceCMP_SWAP_128Results(N, Results, DAG, Subtarget);
+    return;
+  case ISD::FLT_ROUNDS_:
+    Results.push_back(LowerFLT_ROUNDS_(SDValue(N, 0), DAG));
     return;
   }
 }

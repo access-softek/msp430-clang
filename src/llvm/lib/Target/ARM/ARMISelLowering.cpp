@@ -1034,7 +1034,7 @@ ARMTargetLowering::ARMTargetLowering(const TargetMachine &TM,
     // Turn f64->i64 into VMOVRRD, i64 -> f64 to VMOVDRR
     // iff target supports vfp2.
     setOperationAction(ISD::BITCAST, MVT::i64, Custom);
-    setOperationAction(ISD::FLT_ROUNDS_, MVT::i32, Custom);
+    setOperationAction(ISD::FLT_ROUNDS_, MVT::i8, Custom);
   }
 
   // We want to custom lower some of our intrinsics.
@@ -5366,6 +5366,7 @@ SDValue ARMTargetLowering::LowerFLT_ROUNDS_(SDValue Op,
   // The ARM rounding mode value to FLT_ROUNDS mapping is 0->1, 1->2, 2->3, 3->0
   // The formula we use to implement this is (((FPSCR + 1 << 22) >> 22) & 3)
   // so that the shift + and get folded into a bitfield extract.
+  EVT VT = Op.getValueType();
   SDLoc dl(Op);
   SDValue Ops[] = { DAG.getEntryNode(),
                     DAG.getConstant(Intrinsic::arm_get_fpscr, dl, MVT::i32) };
@@ -5375,8 +5376,11 @@ SDValue ARMTargetLowering::LowerFLT_ROUNDS_(SDValue Op,
                                   DAG.getConstant(1U << 22, dl, MVT::i32));
   SDValue RMODE = DAG.getNode(ISD::SRL, dl, MVT::i32, FltRounds,
                               DAG.getConstant(22, dl, MVT::i32));
-  return DAG.getNode(ISD::AND, dl, MVT::i32, RMODE,
-                     DAG.getConstant(3, dl, MVT::i32));
+  SDValue RetVal = DAG.getNode(ISD::AND, dl, MVT::i32, RMODE,
+                               DAG.getConstant(3, dl, MVT::i32));
+
+  return DAG.getNode((VT.getSizeInBits() < 16 ?
+                      ISD::TRUNCATE : ISD::ZERO_EXTEND), dl, VT, RetVal);
 }
 
 static SDValue LowerCTTZ(SDNode *N, SelectionDAG &DAG,
@@ -8175,6 +8179,9 @@ void ARMTargetLowering::ReplaceNodeResults(SDNode *N,
     return;
   case ISD::INTRINSIC_WO_CHAIN:
     return ReplaceLongIntrinsic(N, Results, DAG);
+  case ISD::FLT_ROUNDS_:
+    Res = LowerFLT_ROUNDS_(SDValue(N, 0), DAG);
+    break;
   }
   if (Res.getNode())
     Results.push_back(Res);

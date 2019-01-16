@@ -20,7 +20,8 @@ define i32 @eggs(double* nocapture readnone %arg) {
 bb:
   %tmp = alloca %struct.wibble, align 4
   %tmp1 = bitcast %struct.wibble* %tmp to i8*
-  %tmp2 = tail call i32 @llvm.flt.rounds()
+  %v = tail call i8 @llvm.flt.rounds()
+  %tmp2 = sext i8 %v to i32
   %tmp3 = ptrtoint %struct.wibble* %tmp to i32
   %tmp4 = sitofp i32 %tmp3 to double
   %tmp5 = fmul double %tmp4, 0x0123456789ABCDEF
@@ -45,5 +46,5 @@ bb18:                                             ; preds = %bb16, %bb
   ret i32 undef
 }
 
-declare i32 @llvm.flt.rounds()
+declare i8 @llvm.flt.rounds()
 declare i32 @zot(...)

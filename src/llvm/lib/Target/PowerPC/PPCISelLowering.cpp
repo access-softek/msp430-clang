@@ -280,7 +280,7 @@ PPCTargetLowering::PPCTargetLowering(const PPCTargetMachine &TM,
     setOperationAction(ISD::FMA  , MVT::f32, Legal);
   }
 
-  setOperationAction(ISD::FLT_ROUNDS_, MVT::i32, Custom);
+  setOperationAction(ISD::FLT_ROUNDS_, MVT::i8, Custom);
 
   // If we're enabling GP optimizations, use hardware square root
   if (!Subtarget.hasFSQRT() &&
@@ -9739,6 +9739,9 @@ void PPCTargetLowering::ReplaceNodeResults(SDNode *N,
     return;
   case ISD::BITCAST:
     // Don't handle bitcast here.
+    return;
+  case ISD::FLT_ROUNDS_:
+    Results.push_back(LowerFLT_ROUNDS_(SDValue(N, 0), DAG));
     return;
   }
 }

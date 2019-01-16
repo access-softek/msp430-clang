@@ -16,8 +16,9 @@ define i32 @GetFltRounds() {
 ; CHECK: add w8, w8, #1024, lsl #12
 ; CHECK: ubfx w0, w8, #22, #2
 ; CHECK: ret
-  %1 = tail call i32 @llvm.flt.rounds()
+  %v = tail call i8 @llvm.flt.rounds()
+  %1 = sext i8 %v to i32
   ret i32 %1
 }
 
-declare i32 @llvm.flt.rounds() #0
+declare i8 @llvm.flt.rounds() #0
