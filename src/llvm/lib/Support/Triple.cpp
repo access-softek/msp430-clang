@@ -143,6 +143,8 @@ StringRef Triple::getArchTypePrefix(ArchType Kind) {
 
   case riscv32:
   case riscv64:     return "riscv";
+
+  case msp430:      return "msp430";
   }
 }
 
